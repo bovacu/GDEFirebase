@@ -1,22 +1,17 @@
-#sudo apt install wget
-#
-#if ! [ -d firebase_cpp_sdk ]
-#then
-#    wget https://firebase.google.com/download/cpp && unzip cpp && rm cpp
-#fi
-
 FIREBASE_DIR="$PWD"
 
-if [ -d ../android ]
-then
+function updateAndroid() {
     cd ../android
     sed -i -e 's|#GDEFirebase|include(../GDEFirebase/CMakeLists.txt)|g' CMakeLists.txt
     sed -i -e 's|compileSdkVersion: [0-9][0-9],|compileSdkVersion: 32,|g' build.gradle
     sed -i -e "s|// *GOOGLE_SERVICES|\t\tclasspath 'com.google.gms:google-services:4.3.10'|g" build.gradle
     sed -i -e "s|// *FIREBASE|def firebase_cpp_sdk_dir = System.getProperty('firebase_cpp_sdk.dir')\ngradle.ext.firebase_cpp_sdk_dir = \"\$firebase_cpp_sdk_dir\"\nincludeBuild \"\$firebase_cpp_sdk_dir\"|g" settings.gradle
     ln -s ../GDEFirebase/firebase_cpp_sdk .
-    printf "\n" >> gradle.properties
-    echo "systemProp.firebase_cpp_sdk.dir=$FIREBASE_DIR/firebase_cpp_sdk" >> gradle.properties
+
+    if ! grep -q "systemProp.firebase_cpp_sdk.dir=$FIREBASE_DIR/firebase_cpp_sdk" "gradle.properties"; then
+        printf "\n" >> gradle.properties
+        echo "systemProp.firebase_cpp_sdk.dir=$FIREBASE_DIR/firebase_cpp_sdk" >> gradle.properties
+    fi
 
     cd app
     sed -i -e "s|// *FIREBASE_APPLY_GOOGLE_SERVICES|apply plugin: 'com.google.gms.google-services'|g" build.gradle
@@ -29,6 +24,41 @@ then
     sed -i -e "s|// *FIREBASE_INIT|\t\tinitFireBaseAdds();|g" MainActivity.java
     sed -i -e "s|// *FIREBASE_DEFINE|\t@Override\n\tprotected void finalize() throws Throwable {\n\t\tsuper.finalize();\n\t\tdestroy();\n\t}\n\n\tpublic native void initFireBaseAdds();\n\tpublic native void destroy();\n|g" MainActivity.java
     cd ../../../../../../..
+}
+
+function chooseModuleToInstall() {
+    read -r MODULE
+    if [ "$MODULE" == 0 ]
+    then
+        cd ../..
+        ./addModules.sh ANDROID
+        cd "$FIREBASE_DIR"
+        updateAndroid
+        return 0
+    elif [  "$MODULE" == 3 ]
+    then
+        exit 0
+    fi
+    echo "Currently only ANDROID is supported, so choose 0"
+    return 1
+}
+
+if ! [ -d firebase_cpp_sdk ]
+then
+    sudo apt install wget
+    wget https://firebase.google.com/download/cpp && unzip cpp && rm cpp
+fi
+
+if [ -d ../android ]
+then
+    updateAndroid
+else
+    echo "To use the firebase module you need to have installed ANDROID, IOS or bot modules, choose [(0) ANDROID, (1) IOS, (2) BOTH, (3) exit] to continue:"
+    SELECTED_MODULE=chooseModuleToInstall
+    while [ SELECTED_MODULE == 1 ]; do
+        echo "To use the firebase module you need to have installed ANDROID, IOS or bot modules, choose [(0) ANDROID, (1) IOS, (2) BOTH, (3) exit] to continue:"
+        SELECTED_MODULE=chooseModuleToInstall
+    done
 fi
 
 cd ../..
