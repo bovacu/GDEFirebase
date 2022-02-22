@@ -15,8 +15,8 @@ then
     sed -i -e "s|// *GOOGLE_SERVICES|\t\tclasspath 'com.google.gms:google-services:4.3.10'|g" build.gradle
     sed -i -e "s|// *FIREBASE|def firebase_cpp_sdk_dir = System.getProperty('firebase_cpp_sdk.dir')\ngradle.ext.firebase_cpp_sdk_dir = \"\$firebase_cpp_sdk_dir\"\nincludeBuild \"\$firebase_cpp_sdk_dir\"|g" settings.gradle
     ln -s ../GDEFirebase/firebase_cpp_sdk .
-#    printf "\n" >> gradle.properties
-#    echo "systemProp.firebase_cpp_sdk.dir=$FIREBASE_DIR/firebase_cpp_sdk" >> gradle.properties
+    printf "\n" >> gradle.properties
+    echo "systemProp.firebase_cpp_sdk.dir=$FIREBASE_DIR/firebase_cpp_sdk" >> gradle.properties
 
     cd app
     sed -i -e "s|// *FIREBASE_APPLY_GOOGLE_SERVICES|apply plugin: 'com.google.gms.google-services'|g" build.gradle
