@@ -31,7 +31,8 @@ function chooseModuleToInstall() {
     if [ "$MODULE" == 0 ]
     then
         cd ../..
-        ./addModules.sh ANDROID
+        echo "Configuring Android..."
+        ./addModule.sh ANDROID
         cd "$FIREBASE_DIR"
         updateAndroid
         return 0
@@ -51,13 +52,16 @@ fi
 
 if [ -d ../android ]
 then
+    echo "Android module is already installed, so configuring it..."
     updateAndroid
 else
     echo "To use the firebase module you need to have installed ANDROID, IOS or bot modules, choose [(0) ANDROID, (1) IOS, (2) BOTH, (3) exit] to continue:"
-    SELECTED_MODULE=chooseModuleToInstall
+    chooseModuleToInstall
+    SELECTED_MODULE=$?
     while [ SELECTED_MODULE == 1 ]; do
         echo "To use the firebase module you need to have installed ANDROID, IOS or bot modules, choose [(0) ANDROID, (1) IOS, (2) BOTH, (3) exit] to continue:"
-        SELECTED_MODULE=chooseModuleToInstall
+        chooseModuleToInstall
+        SELECTED_MODULE=$?
     done
 fi
 

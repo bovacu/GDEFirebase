@@ -5,17 +5,19 @@
 #define ENGINE2_0_NATIVE_ADS_H
 
 #include "core/Core.h"
-#include <jni.h>
-#include "firebase/admob.h"
+#if IS_ANDROID()
 
-namespace engine {
+    #include <jni.h>
+    #include "firebase/admob.h"
 
-    struct AndroidEngine {
-        jobject context;
-        JNIEnv* env;
-    };
+    namespace engine {
 
-    class AndroidNative {
+        struct AndroidEngine {
+            jobject context;
+            JNIEnv* env;
+        };
+
+        class AndroidNative {
         private:
             AndroidEngine* androidEngine;
 
@@ -31,15 +33,15 @@ namespace engine {
             JNIEnv* getEnv();
             jobject getContext();
             void destroy();
-    };
+        };
 
-    enum AdType {
-        BANNER,
-        INTERSTITIAL,
-        REWARD
-    };
+        enum AdType {
+            BANNER,
+            INTERSTITIAL,
+            REWARD
+        };
 
-    class NativeAds {
+        class NativeAds {
         private:
             AndroidEngine* androidEngine;
             firebase::admob::BannerView* bannerView;
@@ -61,8 +63,10 @@ namespace engine {
             void init(AndroidEngine* _androidEngine, jobject _context);
             void loadAd(const AdType& _adType);
             void showAd(const AdType& _adType);
-    };
+        };
 
-}
+    }
+
+#endif
 
 #endif //ENGINE2_0_NATIVE_ADS_H
